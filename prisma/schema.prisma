@@ -1,0 +1,77 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Category {
+  idCategory Int       @id @default(autoincrement())
+  name       String
+  products   Product[]
+}
+
+model Product {
+  idProduct       Int              @id @default(autoincrement())
+  name            String
+  price           Int
+  cost            Int              @default(0)
+  stock           Int              @default(0)
+  detailsPurchase DetailPurchase[]
+  detailsSale     DetailSale[]
+  productImages   ProductImage[]
+  idCategory      Int
+  category        Category         @relation(fields: [idCategory], references: [idCategory], onDelete: Cascade, onUpdate: Cascade)
+}
+
+model ProductImage {
+  idProductImage Int     @id @default(autoincrement())
+  url            String
+  idProduct      Int
+  product        Product @relation(fields: [idProduct], references: [idProduct], onDelete: Cascade, onUpdate: Cascade)
+}
+
+model Customer {
+  idCustomer Int    @id @default(autoincrement())
+  name       String
+  ruc        String
+  address    String
+  phone      String
+  sales      Sale[]
+}
+
+model Purchase {
+  idPurchase      Int              @id @default(autoincrement())
+  createdAt       DateTime         @db.Timestamptz(3)
+  detailsPurchase DetailPurchase[]
+}
+
+model DetailPurchase {
+  idDetailPurchase Int      @id @default(autoincrement())
+  quantity         Int
+  cost             Int
+  idProduct        Int
+  idPurchase       Int
+  product          Product  @relation(fields: [idProduct], references: [idProduct], onDelete: Cascade, onUpdate: Cascade)
+  purchase         Purchase @relation(fields: [idPurchase], references: [idPurchase], onDelete: Cascade, onUpdate: Cascade)
+}
+
+model Sale {
+  idSale      Int          @id @default(autoincrement())
+  createdAt   DateTime     @db.Timestamptz(3)
+  detailsSale DetailSale[]
+  idCustomer  Int
+  customer    Customer     @relation(fields: [idCustomer], references: [idCustomer], onDelete: Cascade, onUpdate: Cascade)
+}
+
+model DetailSale {
+  idDetailSale Int     @id @default(autoincrement())
+  quantity     Int
+  price        Int
+  idProduct    Int
+  idSale       Int
+  product      Product @relation(fields: [idProduct], references: [idProduct], onDelete: Cascade, onUpdate: Cascade)
+  sale         Sale    @relation(fields: [idSale], references: [idSale], onDelete: Cascade, onUpdate: Cascade)
+}
